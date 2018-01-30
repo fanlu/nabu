@@ -32,7 +32,7 @@ def get_filenames(dataconfs):
                     (n, f) = line.strip().split('\t')
                     setfiles['%s-%d' % (n, i)] = f
         files.append(setfiles)
-    print("input_pipeline files", len(files[0]))
+    print("input_pipeline files", files[0], len(files))
     #loop over the first names and look for them in the other names. If not
     #all sets contain the name, ignore it
     data_queue_elements = []
@@ -82,7 +82,7 @@ def input_pipeline(
         - the sequence lengths as a list of [batch_size] tensor
         - the number of steps in each epoch
         - the maximal length a sequence can be'''
-    print("pipeline dataconfs", dataconfs, len(dataconfs))
+    print("pipeline", dataconfs[0], len(dataconfs))
     with tf.variable_scope(name or 'input_pipeline'):
 
         #split the an element in the data queue and enqueue them
