@@ -43,6 +43,8 @@ class Evaluator(object):
             for section in sectionset:
                 self.target_dataconfs[-1].append(dict(dataconf.items(section)))
 
+        print("evaluator init", self.input_dataconfs, self.target_dataconfs)
+
     def evaluate(self):
         '''evaluate the performance of the model
 
@@ -66,12 +68,13 @@ class Evaluator(object):
             )
 
             #get the list of filenames fo the validation set
+            print("evluation ", self.input_dataconfs + self.target_dataconfs)
             data_queue_elements, _ = input_pipeline.get_filenames(
                 self.input_dataconfs + self.target_dataconfs)
 
             #compute the number of batches in the validation set
             numbatches = len(data_queue_elements)/batch_size
-
+            print("data_queue_elements %s batch_size %s numbatches %s" % (len(data_queue_elements), batch_size, numbatches))
             #cut the data so it has a whole numbe of batches
             data_queue_elements = data_queue_elements[:numbatches*batch_size]
 
