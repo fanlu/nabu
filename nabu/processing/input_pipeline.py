@@ -32,7 +32,7 @@ def get_filenames(dataconfs):
                     (n, f) = line.strip().split('\t')
                     setfiles['%s-%d' % (n, i)] = f
         files.append(setfiles)
-    print("input_pipeline files", len(files[0]))
+    print("input_pipeline files", files[0], len(files))
     #loop over the first names and look for them in the other names. If not
     #all sets contain the name, ignore it
     data_queue_elements = []
