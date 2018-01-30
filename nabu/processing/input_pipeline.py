@@ -21,7 +21,7 @@ def get_filenames(dataconfs):
     #create the list of strings that will be put into the shared data queue
     #one queue element is a space seperated list of all data elements for
     #one example
-
+    print("dataconfs", dataconfs)
     #read all the names and files
     files = []
     for dataconfset in dataconfs:
@@ -32,7 +32,7 @@ def get_filenames(dataconfs):
                     (n, f) = line.strip().split('\t')
                     setfiles['%s-%d' % (n, i)] = f
         files.append(setfiles)
-
+    print("input_pipeline files", files[0], len(files))
     #loop over the first names and look for them in the other names. If not
     #all sets contain the name, ignore it
     data_queue_elements = []
@@ -51,7 +51,8 @@ def get_filenames(dataconfs):
                 data_queue_element += '\t' + setfile[name]
             data_queue_elements.append(data_queue_element)
             names.append(name)
-
+    print("data_queue_elements files", data_queue_elements[0], len(data_queue_elements))
+    print("names", names[0], len(names))
     return data_queue_elements, names
 
 def input_pipeline(
@@ -81,7 +82,7 @@ def input_pipeline(
         - the sequence lengths as a list of [batch_size] tensor
         - the number of steps in each epoch
         - the maximal length a sequence can be'''
-
+    print("pipeline", dataconfs[0], len(dataconfs))
     with tf.variable_scope(name or 'input_pipeline'):
 
         #split the an element in the data queue and enqueue them
