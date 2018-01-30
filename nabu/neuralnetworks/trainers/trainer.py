@@ -294,9 +294,11 @@ class Trainer(object):
 
             #get the database configurations
             input_names = self.model.conf.get('io', 'inputs').split(' ')
+            print("input_names", input_names)
             if input_names == ['']:
                 input_names = []
             input_sections = [self.conf[i].split(' ') for i in input_names]
+            print("input_sections", input_sections)
             input_dataconfs = []
             for sectionset in input_sections:
                 input_dataconfs.append([])
@@ -305,9 +307,11 @@ class Trainer(object):
                         dict(self.dataconf.items(section)))
 
             output_names = self.conf['targets'].split(' ')
+            print("output_names", output_names)
             if output_names == ['']:
                 output_names = []
             target_sections = [self.conf[o].split(' ') for o in output_names]
+            print("target_sections", target_sections)
             target_dataconfs = []
             for sectionset in target_sections:
                 target_dataconfs.append([])
@@ -319,9 +323,11 @@ class Trainer(object):
             if chief_ps is None:
 
                 #get the filenames
+                print("----------------")
+                print(input_dataconfs + target_dataconfs)
                 data_queue_elements, _ = input_pipeline.get_filenames(
                     input_dataconfs + target_dataconfs)
-
+                print(data_queue_elements[0], len(data_queue_elements))
                 #create the data queue and queue runners
                 data_queue = tf.train.string_input_producer(
                     string_tensor=data_queue_elements,
