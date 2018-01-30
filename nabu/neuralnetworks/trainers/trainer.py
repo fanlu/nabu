@@ -176,9 +176,9 @@ class Trainer(object):
                     loss=outputs['loss'],
                     learning_rate=outputs['learning_rate'],
                     cluster=cluster)
-
+            print("evaluator: ", self.evaluatorconf.get('evaluator', 'evaluator'))
             if self.evaluatorconf.get('evaluator', 'evaluator') != 'None':
-
+                print("use evaluator")
                 #validation part
                 with tf.variable_scope('validate'):
 
@@ -255,6 +255,7 @@ class Trainer(object):
                     tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES,
                                       'validation'))
             else:
+                print("not use evaluator")
                 outputs['update_loss'] = None
 
             tf.summary.scalar('learning rate', outputs['learning_rate'],
