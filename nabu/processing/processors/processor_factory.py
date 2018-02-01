@@ -2,7 +2,7 @@
 contains the Processor factory method'''
 
 from . import audio_processor, text_processor, binary_processor, \
-alignment_processor, textfile_processor
+alignment_processor, textfile_processor, zh_text_processor
 
 def factory(processor):
     '''gets a Processor class
@@ -23,5 +23,7 @@ def factory(processor):
         return alignment_processor.AlignmentProcessor
     elif processor == 'textfile_processor':
         return textfile_processor.TextFileProcessor
+    elif processor == 'zh_text_processor':
+        return zh_text_processor.ZHTextProcessor
     else:
         raise Exception('unknown processor type: %s' % processor)
