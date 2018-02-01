@@ -1,3 +1,4 @@
+# coding=utf-8
 '''@file character.py
 contains the character target normalizer'''
 
@@ -12,12 +13,11 @@ def normalize(transcription, alphabet):
         character'''
 
     #make the transcription lower case and put it into a list
-    normalized = list(transcription.lower())
-    print(alphabet)
-    print(normalized)
+    normalized = list(transcription.lower().decode("utf-8"))
+    #print(alphabet)
+    #print(normalized)
     #replace the spaces with <space>
-    normalized = [character if character != ' ' else '<space>'
-                  for character in normalized]
+    normalized = [character for character in normalized if character != " "]
 
     #replace the end of line with <eol>
     #replace the spaces with <space>
@@ -25,7 +25,7 @@ def normalize(transcription, alphabet):
                   for character in normalized]
 
     #replace unknown characters with <unk>
-    normalized = [character if character in alphabet else '<unk>'
+    normalized = [character.encode("utf-8") if character in alphabet else '<unk>'
                   for character in normalized]
 
     return ' '.join(normalized)
