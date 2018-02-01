@@ -19,9 +19,12 @@ class ZHTextProcessor(processor.Processor):
         #create the normalizer
         self.normalizer = normalizer_factory.factory(
             conf.get('processor', 'normalizer'))
-
-        self.alphabet = conf.get('processor', 'alphabet').strip().split(' ')
+        #import ipdb
+        #ipdb.set_trace()
+        #print("alphabet is: %s" % conf.get('processor', 'alphabet'))
+        self.alphabet = conf.get('processor', 'alphabet').strip().decode("utf-8").split(' ')
         self.alphabet = [c if c != '\\;' else ';' for c in self.alphabet]
+        #print("len of alphabet is: %s" % len(self.alphabet))
 
         #initialize the metadata
         self.max_length = 0
