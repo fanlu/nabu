@@ -47,8 +47,8 @@ mkdir -p $traindir/tri
 echo "----training triphone gmm----"
 
 #train the triphone gmm
-#steps/train_deltas.sh --cmd "$train_cmd" --cluster-thresh 100 3100 50000 $datadir $langdir $traindir/mono_ali $traindir/tri
-steps/train_deltas.sh --cmd "$train_cmd" 2500 20000 $datadir $langdir $traindir/mono_ali $traindir/tri || exit 1;
+#steps/train_deltas.sh --cmd "$train_cmd" --cluster-thresh 100 3100 50000 $datadir $datadir $traindir/mono_ali $traindir/tri
+steps/train_deltas.sh --cmd "$train_cmd" 2500 20000 $datadir $datadir $traindir/mono_ali $traindir/tri1 || exit 1;
 
 mkdir -p $traindir/tri_ali
 
@@ -60,7 +60,7 @@ steps/align_si.sh --nj $nj --cmd "$train_cmd" $datadir $langdir $traindir/tri $t
 echo "----copy from aishell----"
 
 # train tri2 [delta+delta-deltas]
-steps/train_deltas.sh --cmd "$train_cmd" 2500 20000 $datadir $langdir $traindir/tri_ali $traindir/tri2 || exit 1;
+steps/train_deltas.sh --cmd "$train_cmd" 2500 20000 $datadir $langdir $traindir/tri1_ali $traindir/tri2 || exit 1;
 
 # train and decode tri2b [LDA+MLLT]
 steps/align_si.sh --cmd "$train_cmd" --nj $nj $datadir $langdir $traindir/tri2 $traindir/tri2_ali || exit 1;
@@ -98,4 +98,8 @@ done
 #utils/mkgraph.sh $testlang $traindir/tri $traindir/graph
 
 #[aishell]
+<<<<<<< HEAD
 utils/mkgraph.sh $testlang $traindir/tri5a $traindir/graph || exit 1;
+=======
+utils/mkgraph.sh $testlang $traindir/tri5a $traindir/graph || exit 1;
+>>>>>>> add aishell from kaldi/egs/aishell
