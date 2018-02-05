@@ -9,3 +9,4 @@ config/recipes/phonology
 config/recipes/phonology*
 sweeps
 config/recipes/dynamic*
+core.*
