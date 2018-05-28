@@ -17,8 +17,8 @@ pdfs = map(int, pdfs)
 
 #count each pdf occurrence
 counts, _ = np.histogram(pdfs, range(max(pdfs)+2))
-
+counts=np.where(counts==0,1, counts) 
 #normalize the counts to get the priors
 prior = counts.astype(np.float32)/counts.sum()
 
-np.save(os.path.join(traindir, 'prior.npy'), prior)
+np.save(os.path.join(traindir, 'prior2.npy'), prior)
