@@ -4,7 +4,8 @@ command=$1
 arguments="${@:2}"
 basedir=$(dirname "$0")
 pwd=$(pwd)
-
+echo $command
+echo $arguments
 allowed="train test decode data sweep"
 
 if ! [[ $allowed =~ (^|[[:space:]])"$command"($|[[:space:]]) ]]; then

@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 
 nj=4 # number of decoding jobs.  If --transform-dir set, must match that number!
 acwt=0.1  # Just a default value, used for adaptation and beam-pruning..
@@ -22,7 +23,7 @@ outputs=$4
 #location of the kaldi root directory
 kaldi=$5
 
-cd $kaldi/egs/wsj/s5
+cd $kaldi/egs/aishell/s5
 
 #create links of data files
 ln -s $datadir/utt2spk $loglikes/utt2spk
@@ -39,8 +40,8 @@ echo $nj > $outputs/num_jobs
 #create the reader for the log likelihoods
 loglikes="ark,s,cs:copy-feats scp:$sdata/JOB/feats.scp ark:- |"
 
-model=$traindir/tri_ali/final.mdl
-graphdir=$traindir/graph
+model=$traindir/tri5a_ali/final.mdl
+graphdir=$traindir/tri5a/graph
 
 #generate the latices
 $cmd JOB=1:$nj $outputs/log/decode.JOB.log \
