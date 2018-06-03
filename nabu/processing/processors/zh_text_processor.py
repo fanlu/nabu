@@ -1,8 +1,10 @@
+# coding=utf-8
 '''@file text_processor.py
 Contains the TextProcessor'''
 
 import os
 import numpy as np
+import codecs
 import processor
 from nabu.processing.target_normalizers import normalizer_factory
 
@@ -82,8 +84,10 @@ class ZHTextProcessor(processor.Processor):
         with open(os.path.join(datadir, 'sequence_length_histogram.npy'),
                   'w') as fid:
             np.save(fid, self.sequence_length_histogram)
-        with open(os.path.join(datadir, 'alphabet'), 'w') as fid:
-            fid.write(' '.join(self.alphabet))
+        #with open(os.path.join(datadir, 'alphabet'), 'w') as fid:
+        fid = codecs.open(os.path.join(datadir, 'alphabet'), "w", encoding="utf-8")
+        st = ' '.join(self.alphabet)
+        fid.write(st)
         with open(os.path.join(datadir, 'dim'), 'w') as fid:
             fid.write(str(len(self.alphabet)))
         with open(os.path.join(datadir, 'nonesymbol'), 'w') as fid:
