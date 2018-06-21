@@ -10,3 +10,5 @@ config/recipes/phonology*
 sweeps
 config/recipes/dynamic*
 core.*
+.idea
+.vscode

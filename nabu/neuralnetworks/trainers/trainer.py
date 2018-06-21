@@ -659,9 +659,6 @@ class Trainer(object):
                             for i in range(outputs['valbatches']):
                                 #print(i)
                                 #print(sess.run([outputs['eval_inputs'], outputs['eval_targets']]))
-                                #print(i)
-                                #print(sess.run([outputs['eval_inputs'], outputs['eval_targets']]))
-                                inputs = sess.run(outputs['inputs'])
                                 _, summary = sess.run(fetches=[
                                     outputs['update_loss'],
                                     outputs['eval_summaries']])
