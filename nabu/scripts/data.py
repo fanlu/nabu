@@ -10,7 +10,8 @@ from nabu.processing.tfwriters import tfwriter_factory
 
 def main(expdir):
     '''main function'''
-
+    import pdb
+    pdb.set_trace()
     #read the data conf file
     parsed_cfg = configparser.ConfigParser()
     parsed_cfg.read(os.path.join(expdir, 'database.conf'))

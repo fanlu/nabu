@@ -83,7 +83,7 @@ class Evaluator(object):
                 string_tensor=data_queue_elements,
                 shuffle=False,
                 seed=None,
-                capacity=batch_size*2)
+                capacity=batch_size*10)
 
             #create the input pipeline
             data, seq_length, _, _ = input_pipeline.input_pipeline(
@@ -113,7 +113,7 @@ class Evaluator(object):
             update_loss = self.update_loss(
                 loss, inputs, input_seq_length, targets, target_seq_length)
 
-        return loss, update_loss, numbatches
+        return inputs, targets, loss, update_loss, numbatches
 
     @abstractmethod
     def update_loss(self, loss, inputs, input_seq_length, targets,

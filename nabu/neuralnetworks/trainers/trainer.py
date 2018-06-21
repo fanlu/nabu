@@ -198,7 +198,7 @@ class Trainer(object):
                         int(self.conf['valid_frequency']))
 
                     with tf.variable_scope('validation'):
-                        outputs['validation_loss'], outputs['update_loss'], \
+                        outputs['eval_inputs'], outputs['eval_targets'], outputs['validation_loss'], outputs['update_loss'], \
                             outputs['valbatches'] = self._validate()
 
                     #update the learning rate factor
@@ -319,7 +319,8 @@ class Trainer(object):
                 for section in sectionset:
                     target_dataconfs[-1].append(
                         dict(self.dataconf.items(section)))
-
+            #import pdb
+            #pdb.set_trace()
             #check if running in distributed model
             if chief_ps is None:
 
@@ -334,7 +335,7 @@ class Trainer(object):
                     string_tensor=data_queue_elements,
                     shuffle=True,
                     seed=None,
-                    capacity=int(self.conf['batch_size'])*2,
+                    capacity=int(self.conf['batch_size'])*10,
                     shared_name='data_queue')
 
             else:
@@ -342,7 +343,7 @@ class Trainer(object):
 
                     #get the data queue
                     data_queue = tf.FIFOQueue(
-                        capacity=int(self.conf['batch_size'])*2,
+                        capacity=int(self.conf['batch_size'])*10,
                         shared_name='data_queue',
                         name='data_queue',
                         dtypes=[tf.string],
@@ -651,20 +652,26 @@ class Trainer(object):
 
                             #initialize validation
                             outputs['init_validation'].run(session=sess)
-
+                            print(outputs['update_loss'])
+                            #import pdb
+                            #pdb.set_trace()
                             #compute the validation loss
                             for i in range(outputs['valbatches']):
+                                #print(i)
+                                #print(sess.run([outputs['eval_inputs'], outputs['eval_targets']]))
                                 _, summary = sess.run(fetches=[
                                     outputs['update_loss'],
                                     outputs['eval_summaries']])
                                 if summary is not None:
                                     summary_writer.add_summary(summary, i)
+                            print("3")
                             summary, global_step = sess.run(fetches=[
                                 outputs['val_loss_summary'],
                                 outputs['global_step']
                             ])
+                            print("4")
                             summary_writer.add_summary(summary, global_step)
-
+                            print("5")
                             #get the current validation loss
                             validation_loss = outputs['validation_loss'].eval(
                                 session=sess)
@@ -851,18 +858,21 @@ class ParameterServer(object):
                 inputs = modelconf.get('io', 'inputs').split(' ')
                 if inputs == ['']:
                     inputs = []
-                input_sections = [conf[i] for i in inputs]
-                input_dataconfs = []
+                #import pdb
+                #pdb.set_trace()
+                input_sections = [conf.get('trainer', i) for i in inputs]
+                input_dataconfs = [[]]
                 for section in input_sections:
-                    input_dataconfs.append(dict(dataconf.items(section)))
+                    input_dataconfs[-1].append(dict(dataconf.items(section)))
                 outputs = modelconf.get('io', 'outputs').split(' ')
                 if outputs == ['']:
                     outputs = []
-                target_sections = [conf[o] for o in outputs]
-                target_dataconfs = []
+                target_sections = [conf.get('trainer', o) for o in outputs]
+                target_dataconfs = [[]]
                 for section in target_sections:
-                    target_dataconfs.append(dict(dataconf.items(section)))
-
+                    target_dataconfs[-1].append(dict(dataconf.items(section)))
+                #import pdb
+                #pdb.set_trace()
                 data_queue_elements, _ = input_pipeline.get_filenames(
                     input_dataconfs + target_dataconfs)
 
@@ -870,7 +880,7 @@ class ParameterServer(object):
                     string_tensor=data_queue_elements,
                     shuffle=True,
                     seed=None,
-                    capacity=int(conf['batch_size'])*2,
+                    capacity=int(conf.get('trainer', 'batch_size'))*10,
                     shared_name='data_queue')
 
                 #create a queue for the workers to signiy that they are done
