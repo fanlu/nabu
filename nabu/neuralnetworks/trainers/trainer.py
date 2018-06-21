@@ -657,8 +657,12 @@ class Trainer(object):
                             #pdb.set_trace()
                             #compute the validation loss
                             for i in range(outputs['valbatches']):
+<<<<<<< HEAD
                                 #print(i)
                                 #print(sess.run([outputs['eval_inputs'], outputs['eval_targets']]))
+=======
+                                inputs = sess.run(outputs['inputs'])
+>>>>>>> add target
                                 _, summary = sess.run(fetches=[
                                     outputs['update_loss'],
                                     outputs['eval_summaries']])
