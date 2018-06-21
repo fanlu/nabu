@@ -15,6 +15,14 @@ from nabu.computing import cluster, local_cluster
 from nabu.computing.static import run_remote
 from nabu.computing.static import kill_processes
 from train import train
+def cond_term(process):
+    '''terminate pid if it exists'''
+
+    try:
+        os.kill(process.terminate)
+    #pylint: disable=W0702
+    except:
+        pass
 
 def main(expdir, recipe, mode, computing):
     '''main function'''
@@ -90,7 +98,8 @@ def main(expdir, recipe, mode, computing):
                   expdir=expdir)
 
         elif mode == 'single_machine':
-
+            #import pdb
+            #pdb.set_trace()
             #read the computing config file
             parsed_computing_cfg = configparser.ConfigParser()
             parsed_computing_cfg.read(computing_cfg_file)
@@ -124,6 +133,8 @@ def main(expdir, recipe, mode, computing):
         elif mode == 'multi_machine':
 
             #read the computing config file
+            #import pdb
+            #pdb.set_trace()
             parsed_computing_cfg = configparser.ConfigParser()
             parsed_computing_cfg.read(computing_cfg_file)
             computing_cfg = dict(parsed_computing_cfg.items('computing'))
@@ -364,11 +375,3 @@ if __name__ == '__main__':
 
     main(FLAGS.expdir, FLAGS.recipe, FLAGS.mode, FLAGS.computing)
 
-def cond_term(process):
-    '''terminate pid if it exists'''
-
-    try:
-        os.kill(process.terminate)
-    #pylint: disable=W0702
-    except:
-        pass

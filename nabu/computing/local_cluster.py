@@ -1,5 +1,10 @@
 '''@file main.py
+
 this function is used to run distributed training on a local cluster'''
+#from __future__ import absolute_import
+#from __future__ import division
+#from __future__ import print_function
+#from __future__ import unicode_literals
 
 import os
 import atexit
@@ -24,14 +29,18 @@ def local_cluster(expdir):
 
     #start all the jobs
     processes = []
+    #import pdb
+    #pdb.set_trace()
+    new_env = os.environ.copy()
     for job in machines:
         task_index = 0
         for _ in machines[job]:
+            #new_env['CUDA_VISIBLE_DEVICES'] = str(task_index)
             processes.append(subprocess.Popen(
                 ['python', '-u', 'nabu/scripts/train.py',
                  '--clusterfile=%s' % clusterfile,
                  '--job_name=%s' % job, '--task_index=%d' % task_index,
-                 '--ssh_command=None', '--expdir=%s' % expdir]))
+                 '--ssh_command=None', '--expdir=%s' % expdir], env=new_env))
             task_index += 1
 
     for process in processes:
