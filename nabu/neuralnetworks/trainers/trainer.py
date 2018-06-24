@@ -177,7 +177,7 @@ class Trainer(object):
                 outputs['loss'] += tf.reduce_sum(
                     tf.losses.get_regularization_losses())
 
-                outputs['update_op'] = self._update(
+                outputs['update_op'], outputs['sync_hook'] = self._update(
                     loss=outputs['loss'],
                     learning_rate=outputs['learning_rate'],
                     cluster=cluster, global_step=outputs['global_step'])
@@ -541,6 +541,7 @@ class Trainer(object):
                     self.conf['numbatches_to_aggregate']),
                 total_num_replicas=num_workers)
 
+        sync_hook = [optimizer.make_session_run_hook(self.task_index == 0)]
 
         tf.summary.scalar('training_loss', loss,
                           collections=['training_summaries'])
@@ -581,7 +582,7 @@ class Trainer(object):
             *([apply_gradients_op] + update_ops),
             name='update')
 
-        return update_op
+        return update_op, sync_hook
 
     def train(self, testing=False):
         '''train the model
@@ -633,7 +634,7 @@ class Trainer(object):
                 is_chief=is_chief,
                 checkpoint_dir=os.path.join(self.expdir, 'logdir'),
                 scaffold=scaffold,
-                hooks=[hooks.StopHook(outputs['done'])] + self.hooks(outputs),
+                hooks=[hooks.StopHook(outputs['done'])] + self.hooks(outputs) + outputs['sync_hook'],
                 chief_only_hooks=[save_hook, validation_hook] \
                     + self.chief_only_hooks(outputs),
                 config=config) as sess:

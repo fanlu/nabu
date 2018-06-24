@@ -12,3 +12,4 @@ config/recipes/dynamic*
 core.*
 .idea
 .vscode
+.DS_Store
