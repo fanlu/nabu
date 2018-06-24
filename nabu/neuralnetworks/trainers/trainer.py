@@ -75,7 +75,12 @@ class Trainer(object):
         outputs = {}
 
         device, chief_ps = self._device(cluster)
-
+        print("********************")
+        print(cluster.as_dict())
+        print("%s, %s" % (self.server.target, device))
+        print(os.environ['CUDA_VISIBLE_DEVICES'])
+        print(device_lib.list_local_devices())
+        print("&&&&&&&&&&&&&&&&&&&&")
         #a variable to hold the amount of steps already taken
         outputs['global_step'] = tf.get_variable(
             name='global_step',
@@ -175,7 +180,7 @@ class Trainer(object):
                 outputs['update_op'] = self._update(
                     loss=outputs['loss'],
                     learning_rate=outputs['learning_rate'],
-                    cluster=cluster)
+                    cluster=cluster, global_step=outputs['global_step'])
             print("evaluator: ", self.evaluatorconf.get('evaluator', 'evaluator'))
             if self.evaluatorconf.get('evaluator', 'evaluator') != 'None':
                 print("use evaluator")
@@ -499,14 +504,16 @@ class Trainer(object):
             )
             device = tf.train.replica_device_setter(
                 ps_tasks=num_servers,
-                ps_strategy=ps_strategy)
+                ps_strategy=ps_strategy,
+                cluster=cluster,
+                worker_device='/job:worker/task:%d' % self.task_index)
             chief_ps = tf.DeviceSpec(
                 job='ps',
                 task=0)
 
         return device, chief_ps
 
-    def _update(self, loss, learning_rate, cluster):
+    def _update(self, loss, learning_rate, cluster, global_step):
         '''
         create the op to update the model
 
@@ -563,7 +570,7 @@ class Trainer(object):
         #opperation to apply the gradients
         apply_gradients_op = optimizer.apply_gradients(
             grads_and_vars=grads_and_vars,
-            name='apply_gradients')
+            name='apply_gradients', global_step=global_step)
 
         #all remaining operations with the UPDATE_OPS GraphKeys
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
@@ -588,7 +595,9 @@ class Trainer(object):
         master = self.server.target
 
         #start the session and standart servises
+        #config = tf.ConfigProto(log_device_placement=True)
         config = tf.ConfigProto()
+        config.gpu_options.per_process_gpu_memory_fraction = 0.4
         config.gpu_options.allow_growth = True
         config.allow_soft_placement = True
 
@@ -643,8 +652,14 @@ class Trainer(object):
                     if (outputs['update_loss'] is not None
                             and outputs['should_validate'].eval(session=sess)):
                         if is_chief:
-                            print ('WORKER %d: validating model'
-                                   % self.task_index)
+                            import pdb 
+                            #pdb.set_trace()
+                            print("----------------")
+                            from tensorflow.python.platform import tf_logging as logging
+                            tf.logging.set_verbosity(tf.logging.INFO)
+                            logging.info('master %s, WORKER %d: validating model'
+                                   % (master,self.task_index))
+                            print("================")
 
                             #get the previous validation loss
                             prev_val_loss = outputs['best_validation'].eval(
@@ -652,7 +667,7 @@ class Trainer(object):
 
                             #initialize validation
                             outputs['init_validation'].run(session=sess)
-                            print(outputs['update_loss'])
+                            print("%s, %s" % (master, outputs['update_loss']))
                             #import pdb
                             #pdb.set_trace()
                             #compute the validation loss
@@ -752,13 +767,14 @@ class Trainer(object):
 
                     #start time
                     start = time.time()
-
+                    print("master %s, start at %s" % (master, start))
                     #read in the next batch of data
                     local_steps, _ = sess.run([outputs['local_steps'],
                                                outputs['read_data']])
-
+                    print("master %s, local_steps %s" % (master, local_steps))
                     for _ in range(local_steps):
                         #update the model
+                        print("000000000000000000")
                         _, loss, lr, global_step, memory, limit, summary = \
                             sess.run(
                                 fetches=[outputs['update_op'],
@@ -768,11 +784,12 @@ class Trainer(object):
                                          outputs['memory_usage'],
                                          outputs['memory_limit'],
                                          outputs['training_summaries']])
+                        print("111111111111111111111")
 
                         summary_writer.add_summary(summary, global_step)
 
                         if memory is not None:
-                            memory_line = '\n\t peak memory usage: %d/%d MB' % (
+                            memory_line = ' peak memory usage: %d/%d MB' % (
                                 memory/1e6,
                                 limit/1e6
                             )
@@ -780,7 +797,7 @@ class Trainer(object):
                             memory_line = ''
 
                         print(('WORKER %d: step %d/%d loss: %f, learning rate:'
-                               ' %f \n\t time elapsed: %f sec%s')
+                               ' %f time elapsed: %f sec%s')
                               %(self.task_index,
                                 global_step,
                                 outputs['num_steps'],

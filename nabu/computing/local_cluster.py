@@ -40,7 +40,7 @@ def local_cluster(expdir):
                 ['python', '-u', 'nabu/scripts/train.py',
                  '--clusterfile=%s' % clusterfile,
                  '--job_name=%s' % job, '--task_index=%d' % task_index,
-                 '--ssh_command=None', '--expdir=%s' % expdir], env=new_env))
+                 '--ssh_command=None', '--expdir=%s' % expdir]))
             task_index += 1
 
     for process in processes:
