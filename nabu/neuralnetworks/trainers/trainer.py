@@ -85,14 +85,14 @@ class Trainer(object):
 
         device, chief_ps = self._device(cluster)
 
-        #a variable to hold the amount of steps already taken
-        outputs['global_step'] = tf.get_variable(
-            name='global_step',
-            shape=[],
-            dtype=tf.int32,
-            initializer=tf.constant_initializer(0),
-            trainable=False)
-        outputs['increment_step'] = outputs['global_step'].assign_add(1).op
+	#a variable to hold the amount of steps already taken
+	outputs['global_step'] = tf.get_variable(
+	    name='global_step',
+	    shape=[],
+	    dtype=tf.int32,
+	    initializer=tf.constant_initializer(0),
+	    trainable=False)
+	outputs['increment_step'] = outputs['global_step'].assign_add(1).op
 
         should_terminate = tf.get_variable(
             name='should_terminate',
@@ -184,7 +184,7 @@ class Trainer(object):
                 outputs['update_op'] = self._update(
                     loss=outputs['loss'],
                     learning_rate=outputs['learning_rate'],
-                    cluster=cluster)
+                    cluster=cluster, global_step=outputs['global_step'])
 
             if self.evaluatorconf.get('evaluator', 'evaluator') != 'None':
 
@@ -509,7 +509,7 @@ class Trainer(object):
 
         return device, chief_ps
 
-    def _update(self, loss, learning_rate, cluster):
+    def _update(self, loss, learning_rate, cluster, global_step):
         '''
         create the op to update the model
 
@@ -566,9 +566,9 @@ class Trainer(object):
         #opperation to apply the gradients
         apply_gradients_op = optimizer.apply_gradients(
             grads_and_vars=grads_and_vars,
-            name='apply_gradients')
+            name='apply_gradients') # , global_step=tf.train.get_or_create_global_step())
 
-        #all remaining operations with the UPDATE_OPS GraphKeys
+
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
 
         #create an operation to update the gradients, the batch_loss
@@ -753,7 +753,7 @@ class Trainer(object):
                     #read in the next batch of data
                     local_steps, _ = sess.run([outputs['local_steps'],
                                                outputs['read_data']])
-
+		    print("start")
                     for _ in range(local_steps):
                         #update the model
                         _, loss, lr, global_step, memory, limit, summary = \
@@ -763,8 +763,9 @@ class Trainer(object):
                                          outputs['learning_rate'],
                                          outputs['global_step'],
                                          outputs['memory_usage'],
-                                         outputs['memory_limit'],
-                                         outputs['training_summaries']])
+                                         outputs['memory_limit']
+                                         ,outputs['training_summaries']
+				])
 
                         summary_writer.add_summary(summary, global_step)
 
