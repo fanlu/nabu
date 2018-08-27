@@ -104,7 +104,7 @@ class Recognizer(object):
         with self.graph.as_default():
             #create a hook that will load the model
             load_hook = LoadAtBegin(
-                os.path.join(self.expdir, 'model', 'network.ckpt'),
+                os.path.join(self.expdir, 'model', 'network.ckpt-115981'),
                 self.model.variables)
 
             directory = os.path.join(self.expdir, 'decoded')

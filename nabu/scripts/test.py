@@ -71,7 +71,7 @@ def test(expdir, testing=False):
 
         #create a hook that will load the model
         load_hook = LoadAtBegin(
-            os.path.join(expdir, 'model', 'network.ckpt'),
+            os.path.join(expdir, 'model', 'network.ckpt-115981'),
             model.variables)
 
         #start the session

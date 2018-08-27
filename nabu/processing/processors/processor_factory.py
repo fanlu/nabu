@@ -25,5 +25,8 @@ def factory(processor):
     elif processor == 'textfile_processor':
         import textfile_processor
         return textfile_processor.TextFileProcessor
+    elif processor == 'zh_text_processor':
+        import zh_text_processor
+        return zh_text_processor.ZHTextProcessor
     else:
         raise Exception('unknown processor type: %s' % processor)

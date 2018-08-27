@@ -117,6 +117,7 @@ class Trainer(object):
 
             #training part
             with tf.variable_scope('train'):
+		#outputs['global_step'] = tf.train.get_or_create_global_step()
 
                 #create the op to execute when done
                 outputs['done'] = self._done(cluster)
@@ -129,7 +130,9 @@ class Trainer(object):
                  num_steps,
                  outputs['read_data'],
                  outputs['local_steps']) = self._data(chief_ps)
-
+		outputs['inputs'], outputs['targets'] = inputs, targets
+		outputs['input_seq_length'] = input_seq_length
+		outputs['target_seq_length'] = target_seq_length
                 outputs['num_steps'] \
                     = num_steps*int(self.conf['num_epochs'])
 
@@ -325,6 +328,7 @@ class Trainer(object):
                         dict(self.dataconf.items(section)))
 
             #check if running in distributed model
+            #import pdb;pdb.set_trace()
             if chief_ps is None:
 
                 #get the filenames
@@ -566,7 +570,7 @@ class Trainer(object):
         #opperation to apply the gradients
         apply_gradients_op = optimizer.apply_gradients(
             grads_and_vars=grads_and_vars,
-            name='apply_gradients') # , global_step=tf.train.get_or_create_global_step())
+            name='apply_gradients')
 
 
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
@@ -621,14 +625,17 @@ class Trainer(object):
             validation_hook = hooks.ValidationSaveHook(
                 os.path.join(self.expdir, 'logdir', 'validated.ckpt'),
                 self.model)
+	    save_checkpoint_hook = tf.train.CheckpointSaverHook(checkpoint_dir=os.path.join(self.expdir, 'model'),
+                                                    save_steps=5,
+                                                    checkpoint_basename="network.ckpt")
 
             with tf.train.MonitoredTrainingSession(
                 master=master,
                 is_chief=is_chief,
-                checkpoint_dir=os.path.join(self.expdir, 'logdir'),
+                checkpoint_dir=os.path.join(self.expdir, 'model'),
                 scaffold=scaffold,
                 hooks=[hooks.StopHook(outputs['done'])] + self.hooks(outputs),
-                chief_only_hooks=[save_hook, validation_hook] \
+                chief_only_hooks=[save_hook, validation_hook, save_checkpoint_hook] \
                     + self.chief_only_hooks(outputs),
                 config=config) as sess:
 
@@ -753,7 +760,8 @@ class Trainer(object):
                     #read in the next batch of data
                     local_steps, _ = sess.run([outputs['local_steps'],
                                                outputs['read_data']])
-		    print("start")
+		    #print("start")
+		    #import pdb;pdb.set_trace()
                     for _ in range(local_steps):
                         #update the model
                         _, loss, lr, global_step, memory, limit, summary = \
@@ -784,7 +792,10 @@ class Trainer(object):
                                 outputs['num_steps'],
                                 loss, lr, time.time()-start,
                                 memory_line))
-
+		    if global_step % 100 == 0:
+		        modelfile = os.path.join(self.expdir, 'model', 'model.pkl')
+		        with open(modelfile, 'wb') as fid:
+		            pickle.dump(self.model, fid)
                     outputs['increment_step'].run(session=sess)
 
         #store the model file

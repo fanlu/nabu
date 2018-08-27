@@ -20,6 +20,9 @@ def factory(normalizer):
     elif normalizer == 'character':
         import character
         return character.normalize
+    elif normalizer == 'zh_character':
+        import zh_character
+        return zh_character.normalize
     elif normalizer == 'gp':
         import gp
         return gp.normalize
