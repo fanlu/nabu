@@ -23,7 +23,7 @@ def create_server(clusterfile, job_name, task_index, expdir, ssh_command):
     if clusterfile is None:
         #no distributed training
         # start the session and standart servises
-        os.environ['CUDA_VISIBLE_DEVICES'] = str(2)
+        os.environ['CUDA_VISIBLE_DEVICES'] = str(1)
         config = tf.ConfigProto(log_device_placement=False,
                                 allow_soft_placement=True)
         # config = tf.ConfigProto()
